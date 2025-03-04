@@ -1,0 +1,159 @@
+import { create } from 'zustand';
+
+export type AlertLevel = 'normal' | 'warning' | 'critical';
+export type EventType = 'pandemic' | 'trauma' | 'climate' | 'other';
+
+interface AlertState {
+  // État général du système
+  alertLevel: AlertLevel;
+  activeCrisis: boolean;
+  lastUpdate: string;
+  
+  // Alertes
+  alerts: {
+    id: number;
+    level: 'info' | 'warning';
+    message: string;
+    time: string;
+  }[];
+  
+  // Ressources
+  resources: {
+    medical: { available: number; total: number };
+    paramedical: { available: number; total: number };
+    facilities: { available: number; total: number };
+    equipment: { status: string };
+  };
+  
+  // Événements
+  events: {
+    id: number;
+    title: string;
+    date: string;
+    type: 'training' | 'exercise' | 'maintenance';
+  }[];
+  
+  // Membres de la cellule de crise
+  crisisTeamMembers: {
+    id: number;
+    name: string;
+    role: string;
+    present: boolean;
+  }[];
+  
+  // Actions
+  setAlertLevel: (level: AlertLevel) => void;
+  activateCrisis: (active: boolean) => void;
+  updateLastUpdate: () => void;
+  addAlert: (alert: Omit<AlertState['alerts'][0], 'id'>) => void;
+  removeAlert: (id: number) => void;
+  updateResource: (type: keyof AlertState['resources'], data: Partial<AlertState['resources'][keyof AlertState['resources']]>) => void;
+  addEvent: (event: Omit<AlertState['events'][0], 'id'>) => void;
+  removeEvent: (id: number) => void;
+  addCrisisTeamMember: (member: Omit<AlertState['crisisTeamMembers'][0], 'id'>) => void;
+  updateCrisisTeamMember: (id: number, data: Partial<Omit<AlertState['crisisTeamMembers'][0], 'id'>>) => void;
+  removeCrisisTeamMember: (id: number) => void;
+}
+
+export const useAlertStore = create<AlertState>((set) => ({
+  // État initial
+  alertLevel: 'normal',
+  activeCrisis: false,
+  lastUpdate: "01/03/2025 10:32",
+  
+  alerts: [
+    { id: 1, level: 'info', message: 'Mise à jour du plan de crise validée', time: '09:45' },
+    { id: 2, level: 'warning', message: 'Épidémie de grippe - Vigilance renforcée', time: '28/02' },
+    { id: 3, level: 'info', message: 'Exercice de simulation planifié pour le 15/03', time: '27/02' }
+  ],
+  
+  resources: {
+    medical: { available: 28, total: 32 },
+    paramedical: { available: 45, total: 52 },
+    facilities: { available: 4, total: 5 },
+    equipment: { status: 'normal' }
+  },
+  
+  events: [
+    { id: 1, title: 'Formation RETEX', date: '05/03/2025', type: 'training' },
+    { id: 2, title: 'Simulation de crise', date: '15/03/2025', type: 'exercise' },
+    { id: 3, title: 'Mise à jour annuaire', date: '20/03/2025', type: 'maintenance' }
+  ],
+  
+  crisisTeamMembers: [
+    { id: 1, name: 'Dr. Martin Dupont', role: 'Fonction Décision', present: true }
+  ],
+  
+  // Actions
+  setAlertLevel: (level) => set(() => {
+    // Mettre à jour la date de dernière mise à jour
+    const now = new Date();
+    const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    // Ajouter une alerte en fonction du niveau
+    const alertMessage = level === 'normal' 
+      ? 'Niveau d\'alerte défini sur Veille' 
+      : level === 'warning' 
+        ? 'Niveau d\'alerte défini sur Pré-alerte' 
+        : 'ALERTE CRITIQUE ACTIVÉE';
+        
+    const newAlert = {
+      id: Date.now(),
+      level: level === 'critical' ? 'warning' as const : 'info' as const,
+      message: alertMessage,
+      time: `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    };
+    
+    return { 
+      alertLevel: level,
+      lastUpdate: formattedDate,
+      alerts: [newAlert, ...useAlertStore.getState().alerts].slice(0, 10) // Garder les 10 dernières alertes
+    };
+  }),
+  
+  activateCrisis: (active) => set(() => ({ activeCrisis: active })),
+  
+  updateLastUpdate: () => set(() => {
+    const now = new Date();
+    return { 
+      lastUpdate: `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    };
+  }),
+  
+  addAlert: (alert) => set((state) => ({
+    alerts: [{ id: Date.now(), ...alert }, ...state.alerts].slice(0, 10) // Garder les 10 dernières alertes
+  })),
+  
+  removeAlert: (id) => set((state) => ({
+    alerts: state.alerts.filter(alert => alert.id !== id)
+  })),
+  
+  updateResource: (type, data) => set((state) => ({
+    resources: {
+      ...state.resources,
+      [type]: { ...state.resources[type], ...data }
+    }
+  })),
+  
+  addEvent: (event) => set((state) => ({
+    events: [...state.events, { id: Date.now(), ...event }]
+  })),
+  
+  removeEvent: (id) => set((state) => ({
+    events: state.events.filter(event => event.id !== id)
+  })),
+  
+  addCrisisTeamMember: (member) => set((state) => ({
+    crisisTeamMembers: [...state.crisisTeamMembers, { id: Date.now(), ...member }]
+  })),
+  
+  updateCrisisTeamMember: (id, data) => set((state) => ({
+    crisisTeamMembers: state.crisisTeamMembers.map(member => 
+      member.id === id ? { ...member, ...data } : member
+    )
+  })),
+  
+  removeCrisisTeamMember: (id) => set((state) => ({
+    crisisTeamMembers: state.crisisTeamMembers.filter(member => member.id !== id)
+  }))
+}));
