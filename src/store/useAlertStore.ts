@@ -9,12 +9,12 @@ export type ResourceType = 'medical' | 'paramedical' | 'facility' | 'equipment';
 export type RiskLevel = 'low' | 'medium' | 'high';
 export type ResourceStatus = 'available' | 'limited' | 'unavailable';
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
 }
 
-interface Risk {
+export interface Risk {
   id: number;
   type: RiskType;
   name: string;
@@ -23,13 +23,24 @@ interface Risk {
   level: RiskLevel;
 }
 
-interface Resource {
+export interface Resource {
   id: number;
   type: ResourceType;
   name: string;
   position: Position;
   description: string;
   availability: ResourceStatus;
+}
+
+// Ajoutons l'interface TeamMember pour CrisisTeamManager
+export interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  function?: string;
+  contact?: string;
+  email?: string;
+  present: boolean;
 }
 
 interface AlertState {
@@ -69,13 +80,7 @@ interface AlertState {
     type: 'training' | 'exercise' | 'maintenance';
   }[];
   
-  crisisTeamMembers: {
-    id: number;
-    name: string;
-    role: string;
-    function?: string;
-    present: boolean;
-  }[];
+  crisisTeamMembers: TeamMember[];
   
   // Actions
   setAlertLevel: (level: AlertLevel) => void;
@@ -83,11 +88,11 @@ interface AlertState {
   updateLastUpdate: () => void;
   addAlert: (alert: { level: 'info' | 'warning'; message: string; time: string }) => void;
   removeAlert: (id: number) => void;
-  updateResource: (type: string, data: any) => void;
+  updateResource: (type: keyof AlertState['resources'], data: Partial<AlertState['resources'][keyof AlertState['resources']]>) => void;
   addEvent: (event: { title: string; date: string; type: 'training' | 'exercise' | 'maintenance' }) => void;
   removeEvent: (id: number) => void;
-  addCrisisTeamMember: (member: { name: string; role: string; function?: string; present: boolean }) => void;
-  updateCrisisTeamMember: (id: number, data: any) => void;
+  addCrisisTeamMember: (member: Omit<TeamMember, 'id'>) => void;
+  updateCrisisTeamMember: (id: number, data: Partial<TeamMember>) => void;
   removeCrisisTeamMember: (id: number) => void;
   setPhase: (phase: 'alert' | 'escalation' | 'management' | 'resolution') => void;
   completeReflexAction: (actionId: number, completed: boolean) => void;
@@ -215,7 +220,7 @@ export const useAlertStore = create<AlertState>((set) => ({
   updateResource: (type, data) => set((state) => ({
     resources: {
       ...state.resources,
-      [type]: { ...state.resources[type], ...data }
+      [type]: { ...state.resources[type as keyof typeof state.resources], ...data }
     }
   })),
   

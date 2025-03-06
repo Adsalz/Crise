@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAlertStore } from '../store/useAlertStore';
 import { 
   Bell, 
@@ -9,12 +8,13 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-const PhaseManager: React.FC = () => {
+type PhaseId = 'alert' | 'escalation' | 'management' | 'resolution';
+
+const PhaseManager = () => {
   const { 
     crisisPhase, 
     setPhase, 
-    activeCrisis, 
-    alertLevel,
+    activeCrisis,
     activateCrisis,
     updateLastUpdate,
     addAlert
@@ -22,28 +22,28 @@ const PhaseManager: React.FC = () => {
 
   const phases = [
     { 
-      id: 'alert', 
+      id: 'alert' as PhaseId, 
       name: 'Alerte et réponse immédiate', 
       icon: <Bell size={18} />,
       description: 'Réception et diffusion de l\'alerte, analyse initiale',
       color: 'blue'
     },
     { 
-      id: 'escalation', 
+      id: 'escalation' as PhaseId, 
       name: 'Montée en puissance', 
       icon: <ArrowUp size={18} />,
       description: 'Activation du plan et armement de la cellule de crise',
       color: 'amber'
     },
     { 
-      id: 'management', 
+      id: 'management' as PhaseId, 
       name: 'Conduite de la crise', 
       icon: <Activity size={18} />,
       description: 'Suivi de la situation et mise en œuvre de la stratégie',
       color: 'red'
     },
     { 
-      id: 'resolution', 
+      id: 'resolution' as PhaseId, 
       name: 'Sortie de crise', 
       icon: <CheckCircle size={18} />,
       description: 'Retour à la normale et retour d\'expérience',
@@ -52,7 +52,7 @@ const PhaseManager: React.FC = () => {
   ];
 
   // Sélectionne la couleur en fonction de la phase
-  const getPhaseColor = (phaseId: string) => {
+  const getPhaseColor = (phaseId: PhaseId) => {
     const phase = phases.find(p => p.id === phaseId);
     if (!phase) return '';
     
@@ -66,12 +66,12 @@ const PhaseManager: React.FC = () => {
   };
 
   // Vérifie si une phase est actuellement active
-  const isPhaseActive = (phaseId: string) => {
+  const isPhaseActive = (phaseId: PhaseId) => {
     return crisisPhase === phaseId;
   };
 
   // Vérifie si une phase est accessible
-  const isPhaseAccessible = (phaseId: string) => {
+  const isPhaseAccessible = (phaseId: PhaseId) => {
     // Si la crise n'est pas active, seule la phase d'alerte est accessible
     if (!activeCrisis && phaseId !== 'alert') return false;
     
@@ -85,7 +85,7 @@ const PhaseManager: React.FC = () => {
   };
 
   // Change la phase de crise
-  const handlePhaseChange = (phaseId: string) => {
+  const handlePhaseChange = (phaseId: PhaseId) => {
     if (!isPhaseAccessible(phaseId)) return;
     
     setPhase(phaseId);
@@ -94,12 +94,6 @@ const PhaseManager: React.FC = () => {
     // Activer automatiquement la crise si on passe à une phase autre que l'alerte
     if (phaseId !== 'alert' && !activeCrisis) {
       activateCrisis(true);
-    }
-    
-    // Désactiver la crise si on est en phase de résolution
-    if (phaseId === 'resolution') {
-      // Attendre avant de désactiver pour permettre la phase de retour d'expérience
-      // Dans une vraie application, prévoir une confirmation avant désactivation
     }
     
     // Ajouter une alerte pour indiquer le changement de phase
@@ -142,7 +136,7 @@ const PhaseManager: React.FC = () => {
         
         {/* Étapes */}
         <div className="flex justify-between items-center -mt-2">
-          {phases.map((phase, index) => (
+          {phases.map(phase => (
             <div key={phase.id} className="flex flex-col items-center mt-1">
               <button
                 onClick={() => handlePhaseChange(phase.id)}

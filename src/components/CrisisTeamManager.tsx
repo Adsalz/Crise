@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   Shield, 
   User, 
@@ -10,11 +10,10 @@ import {
   Mail,
   Check,
   X,
-  Edit,
   Trash,
   Plus
 } from 'lucide-react';
-import { useAlertStore } from '../store/useAlertStore';
+import { useAlertStore, TeamMember } from '../store/useAlertStore';
 
 const CrisisTeamManager = () => {
   const { crisisTeamMembers, addCrisisTeamMember, updateCrisisTeamMember, removeCrisisTeamMember } = useAlertStore();
@@ -39,22 +38,11 @@ const CrisisTeamManager = () => {
     { id: 'zone', title: 'Référent intraCPTS Zone', icon: <Shield size={20} className="text-red-600" /> }
   ];
 
-  const getFunctionTitle = (functionId) => {
-    const func = functions.find(f => f.id === functionId);
-    return func ? func.title : 'Fonction inconnue';
-  };
-
-  const getFunctionIcon = (functionId) => {
-    const func = functions.find(f => f.id === functionId);
-    return func ? func.icon : <User size={20} />;
-  };
-
   const handleAddMember = () => {
     if (newMember.name && newMember.role) {
       addCrisisTeamMember({
         ...newMember,
-        present: true,
-        id: Date.now()
+        present: true
       });
       setNewMember({
         name: '',
@@ -185,16 +173,6 @@ const CrisisTeamManager = () => {
                         </div>
                       </div>
                       <div className="flex space-x-2">
-                        {member.contact && (
-                          <button className="p-2 rounded-full bg-blue-50 text-blue-600">
-                            <Phone size={16} />
-                          </button>
-                        )}
-                        {member.email && (
-                          <button className="p-2 rounded-full bg-blue-50 text-blue-600">
-                            <Mail size={16} />
-                          </button>
-                        )}
                         <button 
                           className="p-2 rounded-full bg-gray-100 text-gray-600"
                           onClick={() => updateCrisisTeamMember(member.id, {present: !member.present})}

@@ -1,4 +1,3 @@
-import React, { ReactNode } from 'react';
 import { AlertTriangle, Shield, Clock } from 'lucide-react';
 
 interface AlertLevelCardProps {

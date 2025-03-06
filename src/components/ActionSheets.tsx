@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -140,17 +140,6 @@ const ActionSheets: React.FC<ActionSheetProps> = ({ phase }) => {
       case 'management': return 'bg-red-500';
       case 'resolution': return 'bg-green-500';
       default: return 'bg-gray-500';
-    }
-  };
-
-  // Style du texte en fonction de la phase
-  const getPhaseTextColor = () => {
-    switch(phase) {
-      case 'alert': return 'text-blue-600';
-      case 'escalation': return 'text-amber-600';
-      case 'management': return 'text-red-600';
-      case 'resolution': return 'text-green-600';
-      default: return 'text-gray-600';
     }
   };
 

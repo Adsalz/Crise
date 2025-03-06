@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AlertTriangle, MapPin, Package, UserPlus, Shield, Plus, Info } from 'lucide-react';
-import { useAlertStore, Risk, Resource, RiskType, ResourceType, RiskLevel, ResourceStatus } from '../store/useAlertStore';
+import { useAlertStore, Risk, Resource, RiskType, ResourceType } from '../store/useAlertStore';
 
 const MapView: React.FC = () => {
   const { territory, addRisk, addResource } = useAlertStore();
