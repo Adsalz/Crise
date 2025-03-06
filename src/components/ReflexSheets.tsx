@@ -172,7 +172,13 @@ const ReflexSheets: React.FC<ReflexSheetProps> = ({ phase }) => {
   // Vérifie si une étape est cochée
   const isStepCompleted = (stepId: string) => {
     const reflexActions = useAlertStore.getState().reflexActions;
-    return reflexActions.includes(stepId);
+    return reflexActions.includes(extractStepNumber(stepId));
+  };
+
+  // Extraire le numéro de l'étape
+  const extractStepNumber = (stepId: string): number => {
+    const match = stepId.match(/\d+$/);
+    return match ? parseInt(match[0], 10) : 0;
   };
 
   // Calcule le pourcentage de progression
@@ -195,7 +201,8 @@ const ReflexSheets: React.FC<ReflexSheetProps> = ({ phase }) => {
 
   // Gère le clic sur une étape
   const handleStepClick = (stepId: string) => {
-    completeReflexAction(stepId, !isStepCompleted(stepId));
+    const stepNumber = extractStepNumber(stepId);
+    completeReflexAction(stepNumber, !isStepCompleted(stepId));
   };
 
   // Couleur en fonction de la phase

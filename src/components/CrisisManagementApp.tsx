@@ -16,7 +16,10 @@ import MapView from './MapView';
 import PhaseManager from './PhaseManager';
 import ReflexSheets from './ReflexSheets';
 import ActionSheets from './ActionSheets';
-import { useAlertStore, AlertLevel } from '../store/useAlertStore';
+import EcosystemView from './EcosystemView';
+import RetexManager from './RetexManager';
+import CrisisTeamManager from './CrisisTeamManager';
+import { useAlertStore, AlertLevel, CrisisFunction } from '../store/useAlertStore';
 import NewEventModal from './modals/NewEventModal';
 import NewAlertModal from './modals/NewAlertModal';
 import NewTeamMemberModal from './modals/NewTeamMemberModal';
@@ -38,7 +41,8 @@ const CrisisManagementApp: React.FC = () => {
   });
   const [newTeamMemberData, setNewTeamMemberData] = useState({
     name: '',
-    role: ''
+    role: '',
+    function: 'Fonction Décision' as CrisisFunction
   });
 
   // Utilisation du store Zustand
@@ -97,13 +101,16 @@ const CrisisManagementApp: React.FC = () => {
   const handleAddTeamMember = () => {
     if (newTeamMemberData.name && newTeamMemberData.role) {
       addCrisisTeamMember({
-        ...newTeamMemberData,
+        name: newTeamMemberData.name,
+        role: newTeamMemberData.role,
+        function: newTeamMemberData.function,
         present: true
       });
       
       setNewTeamMemberData({
         name: '',
-        role: ''
+        role: '',
+        function: 'Fonction Décision'
       });
       
       setShowNewTeamMemberModal(false);
@@ -437,6 +444,18 @@ const CrisisManagementApp: React.FC = () => {
               onClick={() => setActiveTab('map')}
             />
             <NavItem
+              icon={<Map size={20} />}
+              title="Écosystème CPTS"
+              isActive={activeTab === 'ecosystem'}
+              onClick={() => setActiveTab('ecosystem')}
+            />
+            <NavItem
+              icon={<Users size={20} />}
+              title="Cellule de crise"
+              isActive={activeTab === 'crisis-team'}
+              onClick={() => setActiveTab('crisis-team')}
+            />
+            <NavItem
               icon={<Users size={20} />}
               title="Annuaires"
               isActive={activeTab === 'directory'}
@@ -498,6 +517,22 @@ const CrisisManagementApp: React.FC = () => {
                 }}
               />
               <MobileNavItem
+                title="Écosystème CPTS"
+                isActive={activeTab === 'ecosystem'}
+                onClick={() => {
+                  setActiveTab('ecosystem');
+                  setShowMobileMenu(false);
+                }}
+              />
+              <MobileNavItem
+                title="Cellule de crise"
+                isActive={activeTab === 'crisis-team'}
+                onClick={() => {
+                  setActiveTab('crisis-team');
+                  setShowMobileMenu(false);
+                }}
+              />
+              <MobileNavItem
                 title="Annuaires"
                 isActive={activeTab === 'directory'}
                 onClick={() => {
@@ -553,6 +588,8 @@ const CrisisManagementApp: React.FC = () => {
               {activeTab === 'communication' && 'Communication'}
               {activeTab === 'documents' && 'Documents'}
               {activeTab === 'retex' && 'Retour d\'expérience'}
+              {activeTab === 'ecosystem' && 'Écosystème CPTS'}
+              {activeTab === 'crisis-team' && 'Cellule de crise'}
             </h2>
             <p className="text-gray-600">
               {activeTab === 'dashboard' && 'Aperçu global de la situation'}
@@ -563,12 +600,17 @@ const CrisisManagementApp: React.FC = () => {
               {activeTab === 'communication' && 'Outils de communication interne et externe'}
               {activeTab === 'documents' && 'Plans, protocoles et guides'}
               {activeTab === 'retex' && 'Analyse post-événement et amélioration continue'}
+              {activeTab === 'ecosystem' && 'Vue globale de l\'écosystème CPTS'}
+              {activeTab === 'crisis-team' && 'Gestion de la cellule de crise'}
             </p>
           </div>
           
           {activeTab === 'dashboard' && renderDashboard()}
           {activeTab === 'crisis-activation' && renderCrisisActivation()}
           {activeTab === 'map' && <MapView />}
+          {activeTab === 'ecosystem' && <EcosystemView />}
+          {activeTab === 'retex' && <RetexManager />}
+          {activeTab === 'crisis-team' && <CrisisTeamManager />}
           {activeTab === 'documents' && (
             <div className="space-y-6">
               <PhaseManager />
@@ -583,12 +625,12 @@ const CrisisManagementApp: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-gray-800 mb-4">Fiches actions par rôle</h3>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-4">Fiches actions par phase</h3>
                   <div className="space-y-4">
-                    <ActionSheets role="decision" />
-                    <ActionSheets role="piloting" />
-                    <ActionSheets role="medical" />
-                    <ActionSheets role="paramedical" />
+                    <ActionSheets phase="alert" />
+                    <ActionSheets phase="escalation" />
+                    <ActionSheets phase="management" />
+                    <ActionSheets phase="resolution" />
                   </div>
                 </div>
               </div>

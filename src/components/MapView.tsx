@@ -1,30 +1,12 @@
 import React, { useState } from 'react';
 import { AlertTriangle, MapPin, Package, UserPlus, Shield, Plus, Info } from 'lucide-react';
-import { useAlertStore } from '../store/useAlertStore';
-
-interface RiskMarker {
-  id: number;
-  type: 'natural' | 'technological' | 'health' | 'transport' | 'daily';
-  name: string;
-  position: { x: number; y: number };
-  description: string;
-  level: 'low' | 'medium' | 'high';
-}
-
-interface ResourceMarker {
-  id: number;
-  type: 'medical' | 'paramedical' | 'facility' | 'equipment' | 'other';
-  name: string;
-  position: { x: number; y: number };
-  description: string;
-  availability: 'available' | 'limited' | 'unavailable';
-}
+import { useAlertStore, Risk, Resource, RiskType, ResourceType, RiskLevel, ResourceStatus } from '../store/useAlertStore';
 
 const MapView: React.FC = () => {
   const { territory, addRisk, addResource } = useAlertStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [newMarkerType, setNewMarkerType] = useState<'risk' | 'resource' | null>(null);
-  const [selectedMarker, setSelectedMarker] = useState<RiskMarker | ResourceMarker | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<Risk | Resource | null>(null);
   
   // Forme simplifiée pour la démonstration - utiliser une vraie carte dans l'implémentation finale
   const mockMap = {
@@ -32,7 +14,7 @@ const MapView: React.FC = () => {
     height: 500
   };
   
-  const getMarkerIcon = (type: string) => {
+  const getMarkerIcon = (type: RiskType | ResourceType) => {
     switch(type) {
       case 'natural':
       case 'health':
@@ -53,7 +35,7 @@ const MapView: React.FC = () => {
     }
   };
   
-  const getMarkerColor = (marker: RiskMarker | ResourceMarker) => {
+  const getMarkerColor = (marker: Risk | Resource) => {
     if ('level' in marker) {
       switch(marker.level) {
         case 'low': return 'bg-green-100 text-green-700 border-green-300';
@@ -104,7 +86,7 @@ const MapView: React.FC = () => {
     setNewMarkerType(null);
   };
   
-  const handleMarkerClick = (marker: RiskMarker | ResourceMarker) => {
+  const handleMarkerClick = (marker: Risk | Resource) => {
     setSelectedMarker(marker);
   };
   

@@ -4,85 +4,96 @@ export type AlertLevel = 'normal' | 'warning' | 'critical';
 export type EventType = 'pandemic' | 'trauma' | 'climate' | 'other';
 
 interface AlertState {
-  // État général du système
-  alertLevel: AlertLevel;
-  activeCrisis: boolean;
-  lastUpdate: string;
-  crisisPhase: 'alert' | 'escalation' | 'management' | 'resolution';
-  reflexActions: string[];
-  actionSteps: string[];
-  
-  // Alertes
-  alerts: {
-    id: number;
-    level: 'info' | 'warning';
-    message: string;
-    time: string;
-  }[];
-  
-  // Ressources
-  resources: {
-    medical: { available: number; total: number };
-    paramedical: { available: number; total: number };
-    facilities: { available: number; total: number };
-    equipment: { status: string };
+  // Structures existantes...
+
+  // Structures liées à l'écosystème CPTS
+  territory: {
+    // Structure existante pour les risques et ressources
+    // Ajouter :
+    establishments: {
+      id: number;
+      name: string;
+      type: 'firstLine' | 'secondLine' | 'ems' | 'other';
+      address: string;
+      contact: string;
+    }[];
+    coordinatedStructures: {
+      id: number;
+      name: string;
+      type: 'msp' | 'cds' | 'esp' | 'ess';
+      address: string;
+      contact: string;
+    }[];
+    authorities: {
+      id: number;
+      name: string;
+      type: 'ars' | 'prefecture' | 'city' | 'other';
+      contact: string;
+    }[];
+    interCPTS: {
+      id: number;
+      name: string;
+      contact: string;
+    }[];
+    zones: {
+      id: number;
+      name: string;
+      municipalities: string[];
+      population: number;
+      resources: { doctors: number; nurses: number; pharmacies: number };
+      referent: { name: string; contact: string };
+    }[];
   };
-  
-  // Événements
-  events: {
+
+  // Analyse SWOT
+  swot: {
+    strengths: string[];
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
+  };
+
+  // RETEX et exercices
+  retex: {
+    ongoing: {
+      id: number;
+      title: string;
+      date: string;
+      status: 'preparation' | 'implementation' | 'followup';
+      progress: number;
+      participants: number;
+      lead: string;
+      description: string;
+    }[];
+    completed: {
+      id: number;
+      title: string;
+      date: string;
+      learnings: string[];
+      improvements: string[];
+    }[];
+  };
+  exercises: {
     id: number;
     title: string;
     date: string;
-    type: 'training' | 'exercise' | 'maintenance';
+    status: 'planned' | 'completed';
+    type: 'tabletop' | 'field';
+    scenario: string;
+    participants: string[];
   }[];
-  
-  // Membres de la cellule de crise
-  crisisTeamMembers: {
-    id: number;
-    name: string;
-    role: string;
-    present: boolean;
-  }[];
-  
-  // Actions
-  setAlertLevel: (level: AlertLevel) => void;
-  activateCrisis: (active: boolean) => void;
-  updateLastUpdate: () => void;
-  addAlert: (alert: Omit<AlertState['alerts'][0], 'id'>) => void;
-  removeAlert: (id: number) => void;
-  updateResource: (type: keyof AlertState['resources'], data: Partial<AlertState['resources'][keyof AlertState['resources']]>) => void;
-  addEvent: (event: Omit<AlertState['events'][0], 'id'>) => void;
-  removeEvent: (id: number) => void;
-  addCrisisTeamMember: (member: Omit<AlertState['crisisTeamMembers'][0], 'id'>) => void;
-  updateCrisisTeamMember: (id: number, data: Partial<Omit<AlertState['crisisTeamMembers'][0], 'id'>>) => void;
-  removeCrisisTeamMember: (id: number) => void;
-  
-  // Gestion des phases de crise
-  setPhase: (phase: AlertState['crisisPhase']) => void;
-  
-  // Gestion des fiches réflexes et actions
-  completeReflexAction: (actionId: string, completed: boolean) => void;
-  completeActionStep: (stepId: string, completed: boolean) => void;
-  
-  // Gestion de la cartographie
-  territory: {
-    risks: {
-      id: number;
-      type: 'natural' | 'technological' | 'health' | 'transport' | 'daily';
-      name: string;
-      position: { x: number; y: number };
-      description: string;
-      level: 'low' | 'medium' | 'high';
-    }[];
-    resources: {
-      id: number;
-      type: 'medical' | 'paramedical' | 'facility' | 'equipment' | 'other';
-      name: string;
-      position: { x: number; y: number };
-      description: string;
-      availability: 'available' | 'limited' | 'unavailable';
-    }[];
-  };
+
+  // Ajout des fonctions associées aux nouvelles structures
+  addEstablishment: (establishment: Omit<AlertState['territory']['establishments'][0], 'id'>) => void;
+  addCoordinatedStructure: (structure: Omit<AlertState['territory']['coordinatedStructures'][0], 'id'>) => void;
+  addAuthority: (authority: Omit<AlertState['territory']['authorities'][0], 'id'>) => void;
+  addInterCPTS: (cpts: Omit<AlertState['territory']['interCPTS'][0], 'id'>) => void;
+  addZone: (zone: Omit<AlertState['territory']['zones'][0], 'id'>) => void;
+  updateSWOT: (field: keyof AlertState['swot'], data: string[]) => void;
+  addRetex: (retex: Omit<AlertState['retex']['ongoing'][0], 'id'>) => void;
+  completeRetex: (id: number, data: { learnings: string[], improvements: string[] }) => void;
+  addExercise: (exercise: Omit<AlertState['exercises'][0], 'id'>) => void;
+}
   addRisk: (risk: Omit<AlertState['territory']['risks'][0], 'id'>) => void;
   addResource: (resource: Omit<AlertState['territory']['resources'][0], 'id'>) => void;
 }

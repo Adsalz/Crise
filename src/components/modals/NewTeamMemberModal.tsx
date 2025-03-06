@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Shield, UserPlus } from 'lucide-react';
+import { CrisisFunction } from '../../store/useAlertStore';
 
 interface NewTeamMemberModalProps {
   show: boolean;
@@ -7,10 +8,12 @@ interface NewTeamMemberModalProps {
   teamMemberData: {
     name: string;
     role: string;
+    function: CrisisFunction;
   };
   setTeamMemberData: React.Dispatch<React.SetStateAction<{
     name: string;
     role: string;
+    function: CrisisFunction;
   }>>;
   onSave: () => void;
 }
@@ -31,7 +34,7 @@ const NewTeamMemberModal: React.FC<NewTeamMemberModalProps> = ({
     "Logistique",
     "Communication",
     "Ressources Humaines"
-  ];
+  ] as CrisisFunction[];
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -64,8 +67,15 @@ const NewTeamMemberModal: React.FC<NewTeamMemberModalProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-1">Fonction dans la cellule</label>
             <select
               className="w-full p-2 border border-gray-300 rounded-md"
-              value={teamMemberData.role}
-              onChange={(e) => setTeamMemberData({ ...teamMemberData, role: e.target.value })}
+              value={teamMemberData.function}
+              onChange={(e) => {
+                const selectedFunction = e.target.value as CrisisFunction;
+                setTeamMemberData({ 
+                  ...teamMemberData, 
+                  role: selectedFunction,
+                  function: selectedFunction
+                });
+              }}
             >
               <option value="">Sélectionner une fonction</option>
               {roles.map((role) => (
@@ -89,7 +99,7 @@ const NewTeamMemberModal: React.FC<NewTeamMemberModalProps> = ({
           <button
             onClick={onSave}
             className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center"
-            disabled={!teamMemberData.name || !teamMemberData.role}
+            disabled={!teamMemberData.name || !teamMemberData.function}
           >
             <UserPlus size={18} className="mr-2" />
             Ajouter le membre

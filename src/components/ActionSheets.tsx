@@ -1,417 +1,258 @@
 import React, { useState } from 'react';
 import { 
-  User, 
-  MessageSquare, 
-  Shield, 
-  UserPlus, 
-  Package, 
-  FileText,
-  ChevronDown,
-  ChevronUp,
+  ChevronDown, 
+  ChevronUp, 
   CheckSquare,
   Download,
-  Printer,
-  CheckCircle
+  Printer
 } from 'lucide-react';
 import { useAlertStore } from '../store/useAlertStore';
 
 interface ActionSheetProps {
-  role: 'decision' | 'piloting' | 'medical' | 'paramedical' | 'communication' | 'support' | 'secretary' | 'zone';
+  phase: 'alert' | 'escalation' | 'management' | 'resolution';
 }
 
-const ActionSheets: React.FC<ActionSheetProps> = ({ role }) => {
-  const { completeActionStep, actionSteps, crisisPhase } = useAlertStore();
+const ActionSheets: React.FC<ActionSheetProps> = ({ phase }) => {
+  const { crisisPhase, completeActionStep } = useAlertStore();
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
-  // Titres et informations sur les rôles
-  const roleDetails = {
-    decision: {
-      title: 'Fonction Décision',
-      description: 'Responsabilité globale de l\'opération',
-      icon: <Shield size={20} />,
-      color: 'blue'
-    },
-    piloting: {
-      title: 'Fonction Pilotage',
-      description: 'Pilotage de la cellule de crise',
-      icon: <User size={20} />,
-      color: 'indigo'
-    },
-    medical: {
-      title: 'Organisation Médicale',
-      description: 'Pilotage de l\'organisation médicale',
-      icon: <User size={20} />,
-      color: 'green'
-    },
-    paramedical: {
-      title: 'Organisation Paramédicale',
-      description: 'Pilotage de l\'organisation paramédicale',
-      icon: <UserPlus size={20} />,
-      color: 'teal'
-    },
-    communication: {
-      title: 'Communication',
-      description: 'Communication interne et externe',
-      icon: <MessageSquare size={20} />,
-      color: 'amber'
-    },
-    support: {
-      title: 'Support',
-      description: 'Support logistique et sécurité',
-      icon: <Package size={20} />,
-      color: 'purple'
-    },
-    secretary: {
-      title: 'Secrétariat',
-      description: 'Tenue du secrétariat de crise',
-      icon: <FileText size={20} />,
-      color: 'gray'
-    },
-    zone: {
-      title: 'Référent Zone',
-      description: 'Représentation locale sur zone',
-      icon: <Shield size={20} />,
-      color: 'red'
-    }
-  };
-
-  // Contenu des fiches actions par rôle (basé sur le guide)
+  // Contenu des fiches actions par phase
   const actionContent = {
-    decision: [
+    alert: [
       {
-        id: 'decision-phase1',
-        title: 'TEMPS 1: Armement de la cellule de crise',
+        id: 'alert-section-1',
+        title: 'Action 1: Communication initiale',
         steps: [
-          { id: 'decision-1-1', text: 'Être en appui du pilote de la cellule de crise', phase: 'escalation' },
-          { id: 'decision-1-2', text: 'Superviser les premières actions du pilote', phase: 'escalation' }
+          { id: 'alert-1-1', text: 'Préparer un message initial de communication', isDone: false },
+          { id: 'alert-1-2', text: 'Valider le message avec le comité de direction', isDone: false },
+          { id: 'alert-1-3', text: 'Diffuser le message aux parties prenantes', isDone: false }
         ]
       },
       {
-        id: 'decision-phase2',
-        title: 'TEMPS 2: Conduite de crise',
+        id: 'alert-section-2',
+        title: 'Action 2: Mobilisation des ressources',
         steps: [
-          { id: 'decision-2-1', text: 'Superviser le pilotage de la cellule en lien avec le pilote', phase: 'management' },
-          { id: 'decision-2-2', text: 'Valider le diagnostic de la situation', phase: 'management' },
-          { id: 'decision-2-3', text: 'Valider la gradation de la réponse', phase: 'management' },
-          { id: 'decision-2-4', text: 'Faire le lien avec les autorités', phase: 'management' },
-          { id: 'decision-2-5', text: 'Définir les points de situation', phase: 'management' },
-          { id: 'decision-2-6', text: 'Définir la stratégie de communication', phase: 'management' }
+          { id: 'alert-2-1', text: 'Identifier les ressources nécessaires', isDone: false },
+          { id: 'alert-2-2', text: 'Contacter et mobiliser les ressources', isDone: false }
+        ]
+      }
+    ],
+    escalation: [
+      {
+        id: 'escalation-section-1',
+        title: 'Action 1: Coordination des équipes',
+        steps: [
+          { id: 'escalation-1-1', text: 'Répartir les rôles et responsabilités', isDone: false },
+          { id: 'escalation-1-2', text: 'Établir un plan de communication interne', isDone: false }
         ]
       },
       {
-        id: 'decision-phase3',
-        title: 'TEMPS 3: Sortie de crise',
+        id: 'escalation-section-2',
+        title: 'Action 2: Gestion des ressources',
         steps: [
-          { id: 'decision-3-1', text: 'Décider de la levée du Plan de gestion de crise', phase: 'resolution' },
-          { id: 'decision-3-2', text: 'Vérifier l\'opérationnalité de l\'application', phase: 'resolution' },
-          { id: 'decision-3-3', text: 'Vérifier l\'effectivité du retour à la normale', phase: 'resolution' }
+          { id: 'escalation-2-1', text: 'Évaluer les besoins en ressources', isDone: false },
+          { id: 'escalation-2-2', text: 'Mettre en place un système de suivi', isDone: false }
         ]
       }
     ],
-    piloting: [
+    management: [
       {
-        id: 'piloting-phase1',
-        title: 'TEMPS 1: Armement de la cellule de crise',
+        id: 'management-section-1',
+        title: 'Action 1: Suivi de la situation',
         steps: [
-          { id: 'piloting-1-1', text: 'Désigner une personne pour les rappels des absents', phase: 'escalation' },
-          { id: 'piloting-1-2', text: 'Identifier les rôles et responsabilités', phase: 'escalation' },
-          { id: 'piloting-1-3', text: 'Distribuer les fiches Actions', phase: 'escalation' },
-          { id: 'piloting-1-4', text: 'Désigner un responsable de traçabilité', phase: 'escalation' },
-          { id: 'piloting-1-5', text: 'Installer les équipements et outils', phase: 'escalation' },
-          { id: 'piloting-1-6', text: 'Désigner un responsable de main courante', phase: 'escalation' }
+          { id: 'management-1-1', text: 'Collecter et analyser les informations', isDone: false },
+          { id: 'management-1-2', text: 'Mettre à jour le tableau de bord de crise', isDone: false }
         ]
       },
       {
-        id: 'piloting-phase2',
-        title: 'TEMPS 2: Conduite de crise',
+        id: 'management-section-2',
+        title: 'Action 2: Communication et coordination',
         steps: [
-          { id: 'piloting-2-1', text: 'Coordonner la cellule de crise', phase: 'management' },
-          { id: 'piloting-2-2', text: 'Définir le rythme de fonctionnement', phase: 'management' },
-          { id: 'piloting-2-3', text: 'Synthétiser les actions sur un tableau de bord', phase: 'management' },
-          { id: 'piloting-2-4', text: 'S\'assurer de l\'application des fiches Actions', phase: 'management' },
-          { id: 'piloting-2-5', text: 'Formaliser les protocoles si besoin', phase: 'management' }
+          { id: 'management-2-1', text: 'Organiser des points de situation réguliers', isDone: false },
+          { id: 'management-2-2', text: 'Maintenir un canal de communication ouvert', isDone: false }
+        ]
+      }
+    ],
+    resolution: [
+      {
+        id: 'resolution-section-1',
+        title: 'Action 1: Préparation de la sortie de crise',
+        steps: [
+          { id: 'resolution-1-1', text: 'Évaluer l\'impact global de la crise', isDone: false },
+          { id: 'resolution-1-2', text: 'Préparer un rapport de clôture', isDone: false }
         ]
       },
       {
-        id: 'piloting-phase3',
-        title: 'TEMPS 3: Sortie de crise',
+        id: 'resolution-section-2',
+        title: 'Action 2: Retour d\'expérience',
         steps: [
-          { id: 'piloting-3-1', text: 'Coordonner la levée du plan de gestion de crise', phase: 'resolution' }
-        ]
-      }
-    ],
-    medical: [
-      {
-        id: 'medical-phase1',
-        title: 'Actions d\'organisation médicale',
-        steps: [
-          { id: 'medical-1-1', text: 'Vérifier la transmission de l\'alerte aux professionnels médicaux', phase: 'alert' },
-          { id: 'medical-1-2', text: 'Désigner les rôles dans la coordination médicale', phase: 'escalation' },
-          { id: 'medical-1-3', text: 'Définir la stratégie de prise en charge', phase: 'management' },
-          { id: 'medical-1-4', text: 'Désigner une personne pour le suivi des recommandations', phase: 'management' },
-          { id: 'medical-1-5', text: 'Liaison avec les référents médicaux externes', phase: 'management' },
-          { id: 'medical-1-6', text: 'Identifier les besoins en santé', phase: 'management' },
-          { id: 'medical-1-7', text: 'Superviser le rappel des professionnels médicaux', phase: 'management' },
-          { id: 'medical-1-8', text: 'Prévoir des actions d\'aller-vers', phase: 'management' },
-          { id: 'medical-1-9', text: 'S\'assurer de la transmission de la levée du plan', phase: 'resolution' }
-        ]
-      }
-    ],
-    paramedical: [
-      {
-        id: 'paramedical-phase1',
-        title: 'Actions d\'organisation paramédicale',
-        steps: [
-          { id: 'paramedical-1-1', text: 'Vérifier la transmission de l\'alerte aux professionnels paramédicaux', phase: 'alert' },
-          { id: 'paramedical-1-2', text: 'Désigner les rôles dans la coordination paramédicale', phase: 'escalation' },
-          { id: 'paramedical-1-3', text: 'Points de situation sur les effectifs et matériels', phase: 'management' },
-          { id: 'paramedical-1-4', text: 'Participation à la stratégie de prise en charge', phase: 'management' },
-          { id: 'paramedical-1-5', text: 'Suivi des stocks matériels', phase: 'management' },
-          { id: 'paramedical-1-6', text: 'Évaluer le nombre de professionnels mobilisables', phase: 'management' },
-          { id: 'paramedical-1-7', text: 'Liaison avec les référents paramédicaux externes', phase: 'management' },
-          { id: 'paramedical-1-8', text: 'Superviser le rappel des professionnels paramédicaux', phase: 'management' },
-          { id: 'paramedical-1-9', text: 'S\'assurer de la transmission de la levée du plan', phase: 'resolution' }
-        ]
-      }
-    ],
-    communication: [
-      {
-        id: 'communication-phase1',
-        title: 'Actions de communication',
-        steps: [
-          { id: 'communication-1-1', text: 'Rédiger des supports de communication interne et externe', phase: 'management' },
-          { id: 'communication-1-2', text: 'Organiser des points de presse si nécessaire', phase: 'management' },
-          { id: 'communication-1-3', text: 'Faire le reporting des communications externes', phase: 'management' },
-          { id: 'communication-1-4', text: 'Identifier un porte-parole', phase: 'management' }
-        ]
-      }
-    ],
-    support: [
-      {
-        id: 'support-phase1',
-        title: 'Actions de support',
-        steps: [
-          { id: 'support-1-1', text: 'Identifier et recenser les besoins en matériel', phase: 'management' },
-          { id: 'support-1-2', text: 'Organiser la distribution des stocks', phase: 'management' },
-          { id: 'support-1-3', text: 'Contacter les prestataires et personnes ressources', phase: 'management' },
-          { id: 'support-1-4', text: 'Sécuriser les installations dédiées', phase: 'management' },
-          { id: 'support-1-5', text: 'Identifier des responsables d\'infrastructures', phase: 'management' }
-        ]
-      }
-    ],
-    secretary: [
-      {
-        id: 'secretary-phase1',
-        title: 'Actions de secrétariat',
-        steps: [
-          { id: 'secretary-1-1', text: 'Réception des appels et courriels', phase: 'management' },
-          { id: 'secretary-1-2', text: 'Tenue de la main courante', phase: 'management' },
-          { id: 'secretary-1-3', text: 'Rédaction des points de situations', phase: 'management' },
-          { id: 'secretary-1-4', text: 'Suivi des transmissions de documents', phase: 'management' },
-          { id: 'secretary-1-5', text: 'Rédaction des documents de suivi', phase: 'management' },
-          { id: 'secretary-1-6', text: 'Remplissage des tableaux de bord', phase: 'management' },
-          { id: 'secretary-1-7', text: 'Formalisation des CR de réunions', phase: 'management' }
-        ]
-      }
-    ],
-    zone: [
-      {
-        id: 'zone-phase1',
-        title: 'Actions du référent de zone',
-        steps: [
-          { id: 'zone-1-1', text: 'Mobiliser les PSL de la zone', phase: 'management' },
-          { id: 'zone-1-2', text: 'Identifier et recenser les besoins matériels', phase: 'management' },
-          { id: 'zone-1-3', text: 'Faire le lien avec la cellule de crise', phase: 'management' },
-          { id: 'zone-1-4', text: 'Faire des points réguliers', phase: 'management' },
-          { id: 'zone-1-5', text: 'Décliner la stratégie sur le territoire', phase: 'management' }
+          { id: 'resolution-2-1', text: 'Organiser une réunion de débriefing', isDone: false },
+          { id: 'resolution-2-2', text: 'Documenter les leçons apprises', isDone: false }
         ]
       }
     ]
   };
 
-  // Vérifie si une étape est cochée
-  const isStepCompleted = (stepId: string) => {
-    return actionSteps.includes(stepId);
+  // Vérifie si cette phase est la phase active
+  const isActivePhase = crisisPhase === phase;
+
+  // Extraire le numéro de l'étape
+  const extractStepNumber = (stepId: string): number => {
+    const match = stepId.match(/\d+$/);
+    return match ? parseInt(match[0], 10) : 0;
   };
 
-  // Vérifie si une étape correspond à la phase actuelle
-  const isStepRelevantForCurrentPhase = (phase: string) => {
-    return (
-      (phase === 'alert' && crisisPhase === 'alert') ||
-      (phase === 'escalation' && crisisPhase === 'escalation') ||
-      (phase === 'management' && crisisPhase === 'management') ||
-      (phase === 'resolution' && crisisPhase === 'resolution')
-    );
+  // Vérifie si une étape est cochée
+  const isStepCompleted = (stepId: string) => {
+    const actionSteps = useAlertStore.getState().actionSteps;
+    return actionSteps.includes(extractStepNumber(stepId));
   };
 
   // Calcule le pourcentage de progression
   const calculateProgress = () => {
-    const relevantContent = actionContent[role];
-    let totalRelevantSteps = 0;
-    let completedRelevantSteps = 0;
+    const relevantContent = actionContent[phase];
+    let totalSteps = 0;
+    let completedSteps = 0;
     
     relevantContent.forEach(section => {
+      totalSteps += section.steps.length;
       section.steps.forEach(step => {
-        if (isStepRelevantForCurrentPhase(step.phase)) {
-          totalRelevantSteps++;
-          if (isStepCompleted(step.id)) {
-            completedRelevantSteps++;
-          }
+        if (isStepCompleted(step.id)) {
+          completedSteps++;
         }
       });
     });
     
-    return totalRelevantSteps > 0 ? Math.round((completedRelevantSteps / totalRelevantSteps) * 100) : 0;
+    return totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
   };
 
   // Gère le clic sur une étape
   const handleStepClick = (stepId: string) => {
-    completeActionStep(stepId, !isStepCompleted(stepId));
+    const stepNumber = extractStepNumber(stepId);
+    completeActionStep(stepNumber, !isStepCompleted(stepId));
   };
 
-  // Style du texte en fonction du rôle
-  const getRoleTextColor = () => {
-    switch(roleDetails[role].color) {
-      case 'blue': return 'text-blue-600';
-      case 'indigo': return 'text-indigo-600';
-      case 'green': return 'text-green-600';
-      case 'teal': return 'text-teal-600';
-      case 'amber': return 'text-amber-600';
-      case 'purple': return 'text-purple-600';
-      case 'red': return 'text-red-600';
-      case 'gray': return 'text-gray-600';
-      default: return 'text-blue-600';
+  // Couleur en fonction de la phase
+  const getPhaseColor = () => {
+    switch(phase) {
+      case 'alert': return 'bg-blue-500';
+      case 'escalation': return 'bg-amber-500';
+      case 'management': return 'bg-red-500';
+      case 'resolution': return 'bg-green-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  // Style du fond en fonction du rôle
-  const getRoleBgColor = () => {
-    switch(roleDetails[role].color) {
-      case 'blue': return 'bg-blue-50';
-      case 'indigo': return 'bg-indigo-50';
-      case 'green': return 'bg-green-50';
-      case 'teal': return 'bg-teal-50';
-      case 'amber': return 'bg-amber-50';
-      case 'purple': return 'bg-purple-50';
-      case 'red': return 'bg-red-50';
-      case 'gray': return 'bg-gray-50';
-      default: return 'bg-blue-50';
+  // Style du texte en fonction de la phase
+  const getPhaseTextColor = () => {
+    switch(phase) {
+      case 'alert': return 'text-blue-600';
+      case 'escalation': return 'text-amber-600';
+      case 'management': return 'text-red-600';
+      case 'resolution': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  // Style du fond en fonction de la phase
+  const getPhaseBgColor = () => {
+    switch(phase) {
+      case 'alert': return 'bg-blue-50';
+      case 'escalation': return 'bg-amber-50';
+      case 'management': return 'bg-red-50';
+      case 'resolution': return 'bg-green-50';
+      default: return 'bg-gray-50';
     }
   };
 
   return (
-    <div className="border rounded-lg border-gray-300">
-      <div className={`p-4 flex justify-between items-center ${getRoleBgColor()}`}>
+    <div className={`border rounded-lg ${isActivePhase ? 'border-gray-300' : 'border-gray-200'}`}>
+      <div className={`p-4 flex justify-between items-center ${isActivePhase ? getPhaseBgColor() : 'bg-gray-50'}`}>
         <div className="flex items-center">
-          <div className={`p-2 rounded-full mr-3 ${getRoleBgColor()}`}>
-            {roleDetails[role].icon}
-          </div>
           <div>
-            <h3 className="font-medium text-gray-800">
-              {roleDetails[role].title}
+            <h3 className={`font-medium ${isActivePhase ? 'text-gray-800' : 'text-gray-500'}`}>
+              Actions de la phase {phase}
             </h3>
-            <p className="text-sm text-gray-600">{roleDetails[role].description}</p>
-            <div className="flex items-center mt-1">
-              <div className="w-24 h-2 bg-gray-200 rounded-full mr-2 overflow-hidden">
-                <div
-                  className={`h-full ${getRoleTextColor().replace('text-', 'bg-')}`}
-                  style={{ width: `${calculateProgress()}%` }}
-                ></div>
+            {isActivePhase && (
+              <div className="flex items-center mt-1">
+                <div className="w-24 h-2 bg-gray-200 rounded-full mr-2 overflow-hidden">
+                  <div
+                    className={`h-full ${getPhaseColor()}`}
+                    style={{ width: `${calculateProgress()}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-gray-500">{calculateProgress()}% terminé</span>
               </div>
-              <span className="text-xs text-gray-500">{calculateProgress()}% terminé</span>
-            </div>
+            )}
           </div>
         </div>
         
         <div className="flex items-center space-x-2">
-          <button 
-            className="text-gray-500 hover:text-gray-700 p-1"
-            title="Imprimer"
-          >
-            <Printer size={16} />
-          </button>
-          <button 
-            className="text-gray-500 hover:text-gray-700 p-1"
-            title="Télécharger"
-          >
-            <Download size={16} />
-          </button>
+          {isActivePhase && (
+            <>
+              <button 
+                className="text-gray-500 hover:text-gray-700 p-1"
+                title="Imprimer"
+              >
+                <Printer size={16} />
+              </button>
+              <button 
+                className="text-gray-500 hover:text-gray-700 p-1"
+                title="Télécharger"
+              >
+                <Download size={16} />
+              </button>
+            </>
+          )}
         </div>
       </div>
       
-      <div className="p-4 border-t border-gray-200">
-        {actionContent[role].map(section => (
-          <div key={section.id} className="mb-4 last:mb-0">
-            <button
-              onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}
-              className="w-full flex justify-between items-center py-2 px-1 text-left"
-            >
-              <span className="font-medium text-gray-800">{section.title}</span>
-              {expandedSection === section.id ? (
-                <ChevronUp size={18} className="text-gray-500" />
-              ) : (
-                <ChevronDown size={18} className="text-gray-500" />
-              )}
-            </button>
-            
-            {expandedSection === section.id && (
-              <div className="pl-4 mt-2">
-                {section.steps.map(step => (
-                  <div
-                    key={step.id}
-                    className={`flex items-start p-2 rounded ${
-                      isStepRelevantForCurrentPhase(step.phase) 
-                        ? 'bg-white hover:bg-gray-50' 
-                        : 'bg-gray-50 opacity-60'
-                    } mb-2`}
-                  >
-                    <button
-                      onClick={() => handleStepClick(step.id)}
-                      disabled={!isStepRelevantForCurrentPhase(step.phase)}
-                      className={`flex-shrink-0 w-5 h-5 rounded border ${
-                        isStepCompleted(step.id)
-                          ? getRoleTextColor().replace('text-', 'bg-') + ' border-' + roleDetails[role].color
-                          : 'border-gray-300'
-                      } flex items-center justify-center mr-3 mt-0.5`}
+      {isActivePhase && (
+        <div className="p-4 border-t border-gray-200">
+          {actionContent[phase].map(section => (
+            <div key={section.id} className="mb-4 last:mb-0">
+              <button
+                onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}
+                className="w-full flex justify-between items-center py-2 px-1 text-left"
+              >
+                <span className="font-medium text-gray-800">{section.title}</span>
+                {expandedSection === section.id ? (
+                  <ChevronUp size={18} className="text-gray-500" />
+                ) : (
+                  <ChevronDown size={18} className="text-gray-500" />
+                )}
+              </button>
+              
+              {expandedSection === section.id && (
+                <div className="pl-4 mt-2 space-y-2">
+                  {section.steps.map(step => (
+                    <div
+                      key={step.id}
+                      className="flex items-start p-2 hover:bg-gray-50 rounded"
                     >
-                      {isStepCompleted(step.id) && (
-                        <CheckCircle size={14} className="text-white" />
-                      )}
-                    </button>
-                    <div className="flex-1">
-                      <span className={
-                        isStepCompleted(step.id) 
-                          ? 'text-gray-500 line-through' 
-                          : isStepRelevantForCurrentPhase(step.phase)
-                            ? 'text-gray-800'
-                            : 'text-gray-500'
-                      }>
+                      <button
+                        onClick={() => handleStepClick(step.id)}
+                        className={`flex-shrink-0 w-5 h-5 rounded border ${
+                          isStepCompleted(step.id)
+                            ? 'bg-blue-500 border-blue-500'
+                            : 'border-gray-300'
+                        } flex items-center justify-center mr-3 mt-0.5`}
+                      >
+                        {isStepCompleted(step.id) && (
+                          <CheckSquare size={14} className="text-white" />
+                        )}
+                      </button>
+                      <span className={isStepCompleted(step.id) ? 'text-gray-500 line-through' : 'text-gray-800'}>
                         {step.text}
                       </span>
-                      {/* Badge de phase */}
-                      <div className="mt-1">
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          step.phase === 'alert' ? 'bg-blue-100 text-blue-700' :
-                          step.phase === 'escalation' ? 'bg-amber-100 text-amber-700' :
-                          step.phase === 'management' ? 'bg-red-100 text-red-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
-                          Phase: {
-                            step.phase === 'alert' ? 'Alerte' :
-                            step.phase === 'escalation' ? 'Montée en puissance' :
-                            step.phase === 'management' ? 'Conduite' :
-                            'Résolution'
-                          }
-                        </span>
-                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
