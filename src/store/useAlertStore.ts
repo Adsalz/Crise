@@ -2,100 +2,98 @@ import { create } from 'zustand';
 
 export type AlertLevel = 'normal' | 'warning' | 'critical';
 export type EventType = 'pandemic' | 'trauma' | 'climate' | 'other';
+export type CrisisFunction = string; // Ajouté pour la compatibilité avec NewTeamMemberModal
+
+export type RiskType = 'natural' | 'health' | 'technological' | 'transport' | 'daily';
+export type ResourceType = 'medical' | 'paramedical' | 'facility' | 'equipment';
+export type RiskLevel = 'low' | 'medium' | 'high';
+export type ResourceStatus = 'available' | 'limited' | 'unavailable';
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface Risk {
+  id: number;
+  type: RiskType;
+  name: string;
+  position: Position;
+  description: string;
+  level: RiskLevel;
+}
+
+interface Resource {
+  id: number;
+  type: ResourceType;
+  name: string;
+  position: Position;
+  description: string;
+  availability: ResourceStatus;
+}
 
 interface AlertState {
-  // Structures existantes...
-
+  // État de l'alerte
+  alertLevel: AlertLevel;
+  activeCrisis: boolean;
+  lastUpdate: string;
+  crisisPhase: 'alert' | 'escalation' | 'management' | 'resolution';
+  reflexActions: number[];
+  actionSteps: number[];
+  
   // Structures liées à l'écosystème CPTS
   territory: {
-    // Structure existante pour les risques et ressources
-    // Ajouter :
-    establishments: {
-      id: number;
-      name: string;
-      type: 'firstLine' | 'secondLine' | 'ems' | 'other';
-      address: string;
-      contact: string;
-    }[];
-    coordinatedStructures: {
-      id: number;
-      name: string;
-      type: 'msp' | 'cds' | 'esp' | 'ess';
-      address: string;
-      contact: string;
-    }[];
-    authorities: {
-      id: number;
-      name: string;
-      type: 'ars' | 'prefecture' | 'city' | 'other';
-      contact: string;
-    }[];
-    interCPTS: {
-      id: number;
-      name: string;
-      contact: string;
-    }[];
-    zones: {
-      id: number;
-      name: string;
-      municipalities: string[];
-      population: number;
-      resources: { doctors: number; nurses: number; pharmacies: number };
-      referent: { name: string; contact: string };
-    }[];
+    risks: Risk[];
+    resources: Resource[];
+    // Autres propriétés de territory si nécessaires
   };
-
-  // Analyse SWOT
-  swot: {
-    strengths: string[];
-    weaknesses: string[];
-    opportunities: string[];
-    threats: string[];
+  
+  alerts: {
+    id: number;
+    level: 'info' | 'warning';
+    message: string;
+    time: string;
+  }[];
+  
+  resources: {
+    medical: { available: number; total: number };
+    paramedical: { available: number; total: number };
+    facilities: { available: number; total: number };
+    equipment: { status: string };
   };
-
-  // RETEX et exercices
-  retex: {
-    ongoing: {
-      id: number;
-      title: string;
-      date: string;
-      status: 'preparation' | 'implementation' | 'followup';
-      progress: number;
-      participants: number;
-      lead: string;
-      description: string;
-    }[];
-    completed: {
-      id: number;
-      title: string;
-      date: string;
-      learnings: string[];
-      improvements: string[];
-    }[];
-  };
-  exercises: {
+  
+  events: {
     id: number;
     title: string;
     date: string;
-    status: 'planned' | 'completed';
-    type: 'tabletop' | 'field';
-    scenario: string;
-    participants: string[];
+    type: 'training' | 'exercise' | 'maintenance';
   }[];
-
-  // Ajout des fonctions associées aux nouvelles structures
-  addEstablishment: (establishment: Omit<AlertState['territory']['establishments'][0], 'id'>) => void;
-  addCoordinatedStructure: (structure: Omit<AlertState['territory']['coordinatedStructures'][0], 'id'>) => void;
-  addAuthority: (authority: Omit<AlertState['territory']['authorities'][0], 'id'>) => void;
-  addInterCPTS: (cpts: Omit<AlertState['territory']['interCPTS'][0], 'id'>) => void;
-  addZone: (zone: Omit<AlertState['territory']['zones'][0], 'id'>) => void;
-  updateSWOT: (field: keyof AlertState['swot'], data: string[]) => void;
-  addRetex: (retex: Omit<AlertState['retex']['ongoing'][0], 'id'>) => void;
-  completeRetex: (id: number, data: { learnings: string[], improvements: string[] }) => void;
-  addExercise: (exercise: Omit<AlertState['exercises'][0], 'id'>) => void;
-}
-  addRisk: (risk: Omit<AlertState['territory']['risks'][0], 'id'>) => void;
-  addResource: (resource: Omit<AlertState['territory']['resources'][0], 'id'>) => void;
+  
+  crisisTeamMembers: {
+    id: number;
+    name: string;
+    role: string;
+    function?: string;
+    present: boolean;
+  }[];
+  
+  // Actions
+  setAlertLevel: (level: AlertLevel) => void;
+  activateCrisis: (active: boolean) => void;
+  updateLastUpdate: () => void;
+  addAlert: (alert: { level: 'info' | 'warning'; message: string; time: string }) => void;
+  removeAlert: (id: number) => void;
+  updateResource: (type: string, data: any) => void;
+  addEvent: (event: { title: string; date: string; type: 'training' | 'exercise' | 'maintenance' }) => void;
+  removeEvent: (id: number) => void;
+  addCrisisTeamMember: (member: { name: string; role: string; function?: string; present: boolean }) => void;
+  updateCrisisTeamMember: (id: number, data: any) => void;
+  removeCrisisTeamMember: (id: number) => void;
+  setPhase: (phase: 'alert' | 'escalation' | 'management' | 'resolution') => void;
+  completeReflexAction: (actionId: number, completed: boolean) => void;
+  completeActionStep: (stepId: number, completed: boolean) => void;
+  addRisk: (risk: Omit<Risk, 'id'>) => void;
+  addResource: (resource: Omit<Resource, 'id'>) => void;
 }
 
 export const useAlertStore = create<AlertState>((set) => ({
