@@ -12,6 +12,10 @@ import StatusCard from './StatusCard';
 import QuickAccessButton from './QuickAccessButton';
 import AlertLevelCard from './AlertLevelCard';
 import EventTypeButton from './EventTypeButton';
+import MapView from './MapView';
+import PhaseManager from './PhaseManager';
+import ReflexSheets from './ReflexSheets';
+import ActionSheets from './ActionSheets';
 import { useAlertStore, AlertLevel } from '../store/useAlertStore';
 import NewEventModal from './modals/NewEventModal';
 import NewAlertModal from './modals/NewAlertModal';
@@ -564,7 +568,32 @@ const CrisisManagementApp: React.FC = () => {
           
           {activeTab === 'dashboard' && renderDashboard()}
           {activeTab === 'crisis-activation' && renderCrisisActivation()}
-          {/* Render other tabs content here */}
+          {activeTab === 'map' && <MapView />}
+          {activeTab === 'documents' && (
+            <div className="space-y-6">
+              <PhaseManager />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-4">Fiches réflexes par phase</h3>
+                  <div className="space-y-4">
+                    <ReflexSheets phase="alert" />
+                    <ReflexSheets phase="escalation" />
+                    <ReflexSheets phase="management" />
+                    <ReflexSheets phase="resolution" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-4">Fiches actions par rôle</h3>
+                  <div className="space-y-4">
+                    <ActionSheets role="decision" />
+                    <ActionSheets role="piloting" />
+                    <ActionSheets role="medical" />
+                    <ActionSheets role="paramedical" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

@@ -8,6 +8,9 @@ interface AlertState {
   alertLevel: AlertLevel;
   activeCrisis: boolean;
   lastUpdate: string;
+  crisisPhase: 'alert' | 'escalation' | 'management' | 'resolution';
+  reflexActions: string[];
+  actionSteps: string[];
   
   // Alertes
   alerts: {
@@ -53,6 +56,35 @@ interface AlertState {
   addCrisisTeamMember: (member: Omit<AlertState['crisisTeamMembers'][0], 'id'>) => void;
   updateCrisisTeamMember: (id: number, data: Partial<Omit<AlertState['crisisTeamMembers'][0], 'id'>>) => void;
   removeCrisisTeamMember: (id: number) => void;
+  
+  // Gestion des phases de crise
+  setPhase: (phase: AlertState['crisisPhase']) => void;
+  
+  // Gestion des fiches réflexes et actions
+  completeReflexAction: (actionId: string, completed: boolean) => void;
+  completeActionStep: (stepId: string, completed: boolean) => void;
+  
+  // Gestion de la cartographie
+  territory: {
+    risks: {
+      id: number;
+      type: 'natural' | 'technological' | 'health' | 'transport' | 'daily';
+      name: string;
+      position: { x: number; y: number };
+      description: string;
+      level: 'low' | 'medium' | 'high';
+    }[];
+    resources: {
+      id: number;
+      type: 'medical' | 'paramedical' | 'facility' | 'equipment' | 'other';
+      name: string;
+      position: { x: number; y: number };
+      description: string;
+      availability: 'available' | 'limited' | 'unavailable';
+    }[];
+  };
+  addRisk: (risk: Omit<AlertState['territory']['risks'][0], 'id'>) => void;
+  addResource: (resource: Omit<AlertState['territory']['resources'][0], 'id'>) => void;
 }
 
 export const useAlertStore = create<AlertState>((set) => ({
@@ -60,6 +92,49 @@ export const useAlertStore = create<AlertState>((set) => ({
   alertLevel: 'normal',
   activeCrisis: false,
   lastUpdate: "01/03/2025 10:32",
+  crisisPhase: 'alert',
+  reflexActions: [],
+  actionSteps: [],
+  
+  // Cartographie
+  territory: {
+    risks: [
+      { 
+        id: 1, 
+        type: 'health', 
+        name: 'Cluster COVID-19', 
+        position: { x: 30, y: 40 }, 
+        description: 'Cluster identifié dans un EHPAD', 
+        level: 'high' 
+      },
+      { 
+        id: 2, 
+        type: 'natural', 
+        name: 'Zone inondable', 
+        position: { x: 70, y: 60 }, 
+        description: 'Zone à risque d\'inondation', 
+        level: 'medium' 
+      }
+    ],
+    resources: [
+      { 
+        id: 1, 
+        type: 'medical', 
+        name: 'Centre médical', 
+        position: { x: 40, y: 30 }, 
+        description: 'Centre médical principal', 
+        availability: 'available' 
+      },
+      { 
+        id: 2, 
+        type: 'paramedical', 
+        name: 'Cabinet infirmier', 
+        position: { x: 60, y: 50 }, 
+        description: 'Cabinet de soins infirmiers', 
+        availability: 'limited' 
+      }
+    ]
+  },
   
   alerts: [
     { id: 1, level: 'info', message: 'Mise à jour du plan de crise validée', time: '09:45' },
@@ -155,5 +230,42 @@ export const useAlertStore = create<AlertState>((set) => ({
   
   removeCrisisTeamMember: (id) => set((state) => ({
     crisisTeamMembers: state.crisisTeamMembers.filter(member => member.id !== id)
+  })),
+  
+  // Gestion des phases de crise
+  setPhase: (phase) => set(() => ({ crisisPhase: phase })),
+  
+  // Gestion des fiches réflexes et actions
+  completeReflexAction: (actionId, completed) => set((state) => {
+    if (completed && !state.reflexActions.includes(actionId)) {
+      return { reflexActions: [...state.reflexActions, actionId] };
+    } else if (!completed && state.reflexActions.includes(actionId)) {
+      return { reflexActions: state.reflexActions.filter(id => id !== actionId) };
+    }
+    return {};
+  }),
+  
+  completeActionStep: (stepId, completed) => set((state) => {
+    if (completed && !state.actionSteps.includes(stepId)) {
+      return { actionSteps: [...state.actionSteps, stepId] };
+    } else if (!completed && state.actionSteps.includes(stepId)) {
+      return { actionSteps: state.actionSteps.filter(id => id !== stepId) };
+    }
+    return {};
+  }),
+  
+  // Gestion de la cartographie
+  addRisk: (risk) => set((state) => ({
+    territory: {
+      ...state.territory,
+      risks: [...state.territory.risks, { id: Date.now(), ...risk }]
+    }
+  })),
+  
+  addResource: (resource) => set((state) => ({
+    territory: {
+      ...state.territory,
+      resources: [...state.territory.resources, { id: Date.now(), ...resource }]
+    }
   }))
 }));
